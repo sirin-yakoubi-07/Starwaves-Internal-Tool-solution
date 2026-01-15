@@ -1,12 +1,21 @@
 ﻿using Spectre.Console;
 
-namespace StarWaves.ConsoleApp;
+namespace Starwaves_Internal_Tool;
 
 class Program
 {
     static void Main()
     {
         ShowWelcomeScreen();
+
+        Menu menu = new Menu();
+
+        // 3. Show the menu AFTER key press
+        AnsiConsole.Clear();
+
+        menu.ShowMenu();
+
+        Console.ReadKey();
     }
 
     static void ShowWelcomeScreen()
@@ -62,5 +71,6 @@ class Program
             "\n[grey]Press any key to continue...[/]"
         );
         Console.ReadKey(true);
+      
     }
 }
