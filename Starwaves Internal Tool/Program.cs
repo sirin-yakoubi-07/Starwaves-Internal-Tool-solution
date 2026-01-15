@@ -14,7 +14,6 @@ class Program
         AnsiConsole.Clear();
 
         menu.ShowMenu();
-
         Console.ReadKey();
     }
 
