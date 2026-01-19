@@ -1,15 +1,15 @@
 ﻿using System;
 using Spectre.Console;
 
-namespace Starwaves_Internal_Tool
+namespace StarwavesInternalTool.App.Pages
 {
-    internal static class ImportInvoicePage
+    internal static class DocumentsPage
     {
         public static void Show()
         {
             AnsiConsole.Clear();
-            AnsiConsole.MarkupLine("[bold green]Import Invoice XML[/]\n");
-            AnsiConsole.MarkupLine("Import Invoice XML screen.");
+            AnsiConsole.MarkupLine("[bold cyan]Documents[/]\n");
+            AnsiConsole.MarkupLine("Documents placeholder screen.");
 
             AnsiConsole.MarkupLine("\n[grey]Press any key to return to main menu...[/]");
             Console.ReadKey(true);

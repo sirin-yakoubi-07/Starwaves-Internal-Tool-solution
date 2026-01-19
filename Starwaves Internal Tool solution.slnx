@@ -1,3 +1,6 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="InvoiceKind.cs" />
+  </Folder>
   <Project Path="Starwaves Internal Tool/Starwaves Internal Tool.csproj" />
 </Solution>

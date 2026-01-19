@@ -1,7 +1,7 @@
 ﻿using System;
 using Spectre.Console;
 
-namespace Starwaves_Internal_Tool
+namespace StarwavesInternalTool_App_Pages
 {
     internal static class DashboardsPage
     {
