@@ -1,16 +1,20 @@
-﻿using System;
-using Spectre.Console;
+﻿using Spectre.Console;
+using StarwavesInternalTool.Core.Enums;
 
 namespace StarwavesInternalTool.App.Pages
 {
-    internal static class ImportInvoicePage
+    public static class ImportInvoicePage
     {
-        public static void Show()
+        public static InvoiceKind ChooseInvoiceKind()
         {
-            AnsiConsole.Clear();
-            AnsiConsole.MarkupLine("[bold green]Import Invoice XML[/]\n");
-            AnsiConsole.MarkupLine("Import Invoice XML screen.");
-            //Console.ReadKey(true);
+            return AnsiConsole.Prompt(
+                new SelectionPrompt<InvoiceKind>()
+                    .Title("Select invoice kind:")
+                    .AddChoices(
+                        InvoiceKind.Sales,
+                        InvoiceKind.Purchase
+                    )
+            );
         }
     }
 }
