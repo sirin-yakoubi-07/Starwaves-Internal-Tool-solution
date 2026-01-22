@@ -1,4 +1,5 @@
 ﻿using Spectre.Console;
+using StarwavesInternalTool.App.pages;
 
 namespace Starwaves_Internal_Tool;
 
@@ -19,6 +20,13 @@ class Program
             // Exit → return to welcome screen
             if (result == MenuOption.Exit)
                 continue;
+
+            // Import Invoice XML page
+            if (result == MenuOption.ImportInvoiceXml)
+            {
+                ImportInvoicePage.Show();
+                continue;
+            }
 
             // Placeholder for future pages
             AnsiConsole.Clear();
