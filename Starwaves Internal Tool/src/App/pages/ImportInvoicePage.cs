@@ -1,20 +1,45 @@
-﻿using Spectre.Console;
+﻿using System;
 using StarwavesInternalTool.Core.Enums;
 
-namespace StarwavesInternalTool.App.Pages
+namespace StarwavesInternalTool.App.pages
 {
     public static class ImportInvoicePage
     {
-        public static InvoiceKind ChooseInvoiceKind()
+        public static void Show()
         {
-            return AnsiConsole.Prompt(
-                new SelectionPrompt<InvoiceKind>()
-                    .Title("Select invoice kind:")
-                    .AddChoices(
-                        InvoiceKind.Sales,
-                        InvoiceKind.Purchase
-                    )
-            );
+            Console.Clear();
+            Console.WriteLine("Import Invoice");
+            Console.WriteLine();
+
+            InvoiceKind invoiceKind = AskForInvoiceKind();
+
+            Console.WriteLine();
+            Console.WriteLine($"Selected invoice kind: {invoiceKind}");
+
+            // NEXT STEP will use invoiceKind
+            Console.WriteLine("Continue to XML selection...");
+        }
+
+        private static InvoiceKind AskForInvoiceKind()
+        {
+            while (true)
+            {
+                Console.WriteLine("Choose invoice kind:");
+                Console.WriteLine("1 - Sales");
+                Console.WriteLine("2 - Purchase");
+                Console.Write("Your choice: ");
+
+                string? input = Console.ReadLine();
+
+                if (input == "1")
+                    return InvoiceKind.Sales;
+
+                if (input == "2")
+                    return InvoiceKind.Purchase;
+
+                Console.WriteLine("Invalid choice. Please select 1 or 2.");
+                Console.WriteLine();
+            }
         }
     }
 }
