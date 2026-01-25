@@ -1,5 +1,6 @@
 ﻿using Spectre.Console;
 using StarwavesInternalTool.Core.Enums;
+using StarwavesInternalTool.App.pages;
 
 namespace StarwavesInternalTool.App.pages
 {
@@ -10,15 +11,17 @@ namespace StarwavesInternalTool.App.pages
             AnsiConsole.Clear();
             AnsiConsole.MarkupLine("[bold dodgerblue1]Import Invoice[/]\n");
 
+            // Step 1: Ask for invoice kind
             InvoiceKind invoiceKind = AskForInvoiceKind();
 
-            // ➜ Go to XML selection page
+            // Step 2: Ask for XML file and parse it
             string xmlPath = ImportInvoiceXmlPage.Show();
 
-            // Temporary confirmation
+            // Step 3: Temporary confirmation (until next steps are implemented)
             AnsiConsole.MarkupLine(
                 $"\nInvoice Kind: [green]{invoiceKind}[/]"
             );
+
             AnsiConsole.MarkupLine(
                 $"XML Path: [green]{xmlPath}[/]"
             );
@@ -41,5 +44,6 @@ namespace StarwavesInternalTool.App.pages
         }
     }
 }
+
 
 

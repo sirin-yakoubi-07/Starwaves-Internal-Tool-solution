@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Spectre.Console;
+using StarwavesInternalTool.Core.Parsing;
 
 namespace StarwavesInternalTool.App.pages
 {
@@ -34,20 +36,24 @@ namespace StarwavesInternalTool.App.pages
                     continue;
                 }
 
-                // Valid path
-                AnsiConsole.MarkupLine(
-                    "\n[green]✔ XML file validated successfully[/]"
-                );
+                AnsiConsole.MarkupLine("\n[green]✔ XML file validated successfully[/]");
 
-                return path;
+                try
+                {
+                    InvoiceParser.Parse(path);
+                    AnsiConsole.MarkupLine("[green]✔ XML file parsed successfully[/]");
+                    return path; // ✅ RETURN VALUE
+                }
+                catch (Exception ex)
+                {
+                    ShowError($"Parsing failed: {ex.Message}");
+                }
             }
         }
 
         private static void ShowError(string message)
         {
-            AnsiConsole.MarkupLine(
-                $"\n[red]✖ {message}[/]\n"
-            );
+            AnsiConsole.MarkupLine($"\n[red]✖ {message}[/]\n");
         }
     }
 }
