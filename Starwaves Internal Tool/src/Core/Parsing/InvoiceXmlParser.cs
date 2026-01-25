@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using Spectre.Console;
@@ -8,73 +7,83 @@ namespace StarwavesInternalTool.Core.Parsing
 {
     public static class InvoiceParser
     {
+        /// <summary>
+        /// Parses an invoice XML file safely.
+        /// </summary>
+        /// <param name="xmlPath">Path to the XML file</param>
         public static void Parse(string xmlPath)
         {
+            AnsiConsole.Clear();
+            AnsiConsole.MarkupLine("[bold yellow]Parsing invoice XML...[/]");
+
+            if (!System.IO.File.Exists(xmlPath))
+            {
+                AnsiConsole.MarkupLine($"[red]Error:[/] File not found: [yellow]{xmlPath}[/]");
+                ReturnToMenu();
+                return;
+            }
+
             try
             {
                 XDocument document = XDocument.Load(xmlPath);
 
-                XElement facture = document.Element("Facture")
-                    ?? throw new Exception("Root element <Facture> not found.");
+                // Check root element
+                XElement facture = document.Element("Facture");
+                if (facture == null)
+                {
+                    AnsiConsole.MarkupLine("[red]Error:[/] This XML is not a valid invoice.");
+                    AnsiConsole.MarkupLine($"Root element found: [yellow]{document.Root?.Name ?? "None"}[/]");
+                    ReturnToMenu();
+                    return;
+                }
 
-                // =========================
                 // Informations générales
-                // =========================
-                XElement info = facture.Element("InformationsGenerales")
-                    ?? throw new Exception("<InformationsGenerales> not found.");
+                XElement info = facture.Element("InformationsGenerales");
+                if (info == null)
+                    throw new Exception("<InformationsGenerales> element is missing.");
 
                 string numero = info.Element("NumeroFacture")?.Value ?? "N/A";
                 string date = info.Element("DateFacture")?.Value ?? "N/A";
-                string type = info.Element("TypeFacture")?.Value ?? "N/A";
+                string typeFacture = info.Element("TypeFacture")?.Value ?? "N/A";
                 string devise = info.Element("Devise")?.Value ?? "N/A";
 
-                // =========================
                 // Vendeur
-                // =========================
                 XElement vendeur = facture.Element("Vendeur")
-                    ?? throw new Exception("<Vendeur> not found.");
+                    ?? throw new Exception("<Vendeur> element is missing.");
 
                 string vendeurNom = vendeur.Element("RaisonSociale")?.Value ?? "N/A";
                 string vendeurAdresse = vendeur.Element("Adresse")?.Value ?? "N/A";
                 string vendeurMF = vendeur.Element("MatriculeFiscal")?.Value ?? "N/A";
 
-                // =========================
                 // Client
-                // =========================
                 XElement client = facture.Element("Client")
-                    ?? throw new Exception("<Client> not found.");
+                    ?? throw new Exception("<Client> element is missing.");
 
                 string clientNom = client.Element("RaisonSociale")?.Value ?? "N/A";
                 string clientAdresse = client.Element("Adresse")?.Value ?? "N/A";
 
-                // =========================
                 // Lignes
-                // =========================
-                var lignes = facture
-                    .Element("Lignes")?
-                    .Elements("Ligne")
-                    ?? throw new Exception("<Lignes> not found.");
+                var lignes = facture.Element("Lignes")?.Elements("Ligne")
+                    ?? throw new Exception("<Lignes> element is missing.");
 
-                // =========================
                 // Totaux
-                // =========================
                 XElement totaux = facture.Element("Totaux")
-                    ?? throw new Exception("<Totaux> not found.");
+                    ?? throw new Exception("<Totaux> element is missing.");
 
                 string totalHT = totaux.Element("TotalHT")?.Value ?? "0";
                 string totalTVA = totaux.Element("TotalTVA")?.Value ?? "0";
                 string totalTTC = totaux.Element("TotalTTC")?.Value ?? "0";
 
                 // =========================
-                // DISPLAY RESULT
+                // DISPLAY FULL DETAILS
                 // =========================
                 AnsiConsole.Clear();
-                AnsiConsole.MarkupLine("[bold green]✔ Facture XML parsed successfully[/]\n");
+                AnsiConsole.MarkupLine("[bold green]✔ Invoice XML parsed successfully[/]\n");
 
                 AnsiConsole.MarkupLine("[bold]Informations générales[/]");
                 AnsiConsole.MarkupLine($"Numéro       : [yellow]{numero}[/]");
                 AnsiConsole.MarkupLine($"Date         : [yellow]{date}[/]");
-                AnsiConsole.MarkupLine($"Type         : [yellow]{type}[/]");
+                AnsiConsole.MarkupLine($"Type         : [yellow]{typeFacture}[/]");
                 AnsiConsole.MarkupLine($"Devise       : [yellow]{devise}[/]\n");
 
                 AnsiConsole.MarkupLine("[bold]Vendeur[/]");
@@ -87,7 +96,6 @@ namespace StarwavesInternalTool.Core.Parsing
                 AnsiConsole.MarkupLine($"Adresse      : [yellow]{clientAdresse}[/]\n");
 
                 AnsiConsole.MarkupLine("[bold]Lignes[/]");
-
                 int index = 1;
                 foreach (var ligne in lignes)
                 {
@@ -96,9 +104,7 @@ namespace StarwavesInternalTool.Core.Parsing
                     string prix = ligne.Element("PrixUnitaire")?.Value ?? "0";
                     string tva = ligne.Element("TauxTVA")?.Value ?? "0";
 
-                    AnsiConsole.MarkupLine(
-                        $"{index}. {designation} | Qté: {quantite} | PU: {prix} | TVA: {tva}%"
-                    );
+                    AnsiConsole.MarkupLine($"{index}. {designation} | Qté: {quantite} | PU: {prix} | TVA: {tva}%");
                     index++;
                 }
 
@@ -107,16 +113,33 @@ namespace StarwavesInternalTool.Core.Parsing
                 AnsiConsole.MarkupLine($"Total TVA : [yellow]{totalTVA}[/]");
                 AnsiConsole.MarkupLine($"Total TTC : [yellow]{totalTTC}[/]");
 
-                AnsiConsole.MarkupLine(
-                    "\n[grey]Press any key to continue...[/]"
-                );
-                Console.ReadKey(true);
+                // Summary table
+                var summaryTable = new Table()
+                    .RoundedBorder()
+                    .AddColumn("[bold]Field[/]")
+                    .AddColumn("[bold]Value[/]");
+
+                summaryTable.AddRow("Invoice kind", typeFacture);
+                summaryTable.AddRow("Invoice ID", numero);
+                summaryTable.AddRow("Issue date", date);
+                summaryTable.AddRow("Counterparty name", clientNom);
+
+                AnsiConsole.MarkupLine("\n[bold dodgerblue1]Invoice Summary[/]");
+                AnsiConsole.Write(summaryTable);
+
+                ReturnToMenu();
             }
             catch (Exception ex)
             {
-                throw new Exception($"Invoice XML parsing failed: {ex.Message}");
+                AnsiConsole.MarkupLine($"[red]Invoice XML parsing failed:[/] {ex.Message}");
+                ReturnToMenu();
             }
+        }
+
+        private static void ReturnToMenu()
+        {
+            AnsiConsole.MarkupLine("\n[grey]Press any key to return to the menu...[/]");
+            Console.ReadKey(true);
         }
     }
 }
-
